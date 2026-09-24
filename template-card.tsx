@@ -1,8 +1,10 @@
 ﻿import {
   Download,
   Eye,
+  FileImage,
   Heart,
 } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { type Template } from "@/lib/catalog";
@@ -29,6 +31,17 @@ export function TemplateCard({
   onPreview,
   onDownload,
 }: TemplateCardProps) {
+  const [previewError, setPreviewError] =
+    useState(false);
+
+  const previewUrl =
+    typeof template.preview_url === "string"
+      ? template.preview_url.trim()
+      : "";
+
+  const hasPreview =
+    Boolean(previewUrl) && !previewError;
+
   return (
     <article
       className="
@@ -45,18 +58,28 @@ export function TemplateCard({
         hover:shadow-xl
       "
     >
-      {/* Preview WEBP */}
+      {/* =====================================================
+          PREVIEW WEBP
+      ====================================================== */}
+
       <div
-        className="relative aspect-[16/10] cursor-pointer overflow-hidden bg-muted"
+        className="
+          relative
+          aspect-[16/10]
+          cursor-pointer
+          overflow-hidden
+          bg-muted
+        "
         onClick={() =>
           onPreview?.(template)
         }
       >
-        {template.preview_url ? (
+        {hasPreview ? (
           <img
-            src={template.preview_url}
-            alt={`Preview of ${template.name}`}
+            src={previewUrl}
+            alt={`Aperçu de ${template.name}`}
             loading="lazy"
+            decoding="async"
             className="
               h-full
               w-full
@@ -65,14 +88,38 @@ export function TemplateCard({
               duration-500
               group-hover:scale-105
             "
+            onError={() => {
+              setPreviewError(true);
+            }}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
-            Preview unavailable
+          <div
+            className="
+              flex
+              h-full
+              w-full
+              flex-col
+              items-center
+              justify-center
+              gap-2
+              px-4
+              text-center
+              text-sm
+              text-muted-foreground
+            "
+          >
+            <FileImage className="h-7 w-7" />
+
+            <span>
+              Aperçu indisponible
+            </span>
           </div>
         )}
 
-        {/* Preview overlay */}
+        {/* ===================================================
+            PREVIEW OVERLAY
+        ==================================================== */}
+
         <div
           className="
             pointer-events-none
@@ -109,7 +156,10 @@ export function TemplateCard({
           </span>
         </div>
 
-        {/* Favorite */}
+        {/* ===================================================
+            FAVORITE
+        ==================================================== */}
+
         {onToggleFavorite && (
           <Button
             type="button"
@@ -147,7 +197,10 @@ export function TemplateCard({
         )}
       </div>
 
-      {/* Informations / actions */}
+      {/* =====================================================
+          INFORMATIONS
+      ====================================================== */}
+
       <div className="space-y-3 p-4">
         <div>
           <h3 className="line-clamp-1 font-semibold">
@@ -155,13 +208,22 @@ export function TemplateCard({
           </h3>
 
           {template.code && (
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p
+              className="
+                mt-1
+                text-xs
+                text-muted-foreground
+              "
+            >
               {template.code}
             </p>
           )}
         </div>
 
-        {/* Actions */}
+        {/* ===================================================
+            DOWNLOAD BUTTONS
+        ==================================================== */}
+
         <div className="flex gap-2">
           <Button
             type="button"
